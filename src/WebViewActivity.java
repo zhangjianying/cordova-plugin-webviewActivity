@@ -37,7 +37,10 @@ public class WebViewActivity extends CordovaActivity
     // 要申请的权限
     private String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CALL_PHONE,
             Manifest.permission.CAMERA,Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,Manifest.permission.READ_PHONE_STATE,Manifest.permission.RECORD_AUDIO
+            Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,Manifest.permission.READ_PHONE_STATE,Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+
+
     };
     /**
      * 开始提交请求权限

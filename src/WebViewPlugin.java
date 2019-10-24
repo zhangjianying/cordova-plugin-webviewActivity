@@ -117,4 +117,7 @@ public class WebViewPlugin extends CordovaPlugin {
     public Boolean shouldAllowBridgeAccess(String url) {
         return true;
     }
+
+    @Override
+    public Boolean shouldAllowNavigation(String url) {return true;}
 }

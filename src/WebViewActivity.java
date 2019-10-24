@@ -6,23 +6,19 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import org.apache.cordova.CordovaActivity;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Date;
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,10 +63,8 @@ public class WebViewActivity extends CordovaActivity
             e.printStackTrace();
         }
 
-        if(url.indexOf("?")>-1)
-            url=url+"&rt="+new Date().getTime();
-        else
-            url=url+"?rt="+new Date().getTime();
+        url=  getDefaultParams(url);
+        Log.d("WebViewActivity","url="+url);
 
 
         //动态申请权限
@@ -91,7 +85,7 @@ public class WebViewActivity extends CordovaActivity
                 }
                 initTitle(title, isBackBtn);
             }
-        }else{
+        }else{// 6.0以下处理流程
             loadUrl(url);
             if(shouldShowLoading){
                 showLoading();
@@ -102,6 +96,32 @@ public class WebViewActivity extends CordovaActivity
 
     }
 
+
+    private String getDefaultParams(String url){
+        ArrayList<String> params = new ArrayList<String>();
+        params.add("v="+getAppVersionName());
+        params.add("p=android");
+        params.add("rt="+new Date().getTime());
+
+        String extendParams = TextUtils.join("&", params);
+        if(url.indexOf("?")>-1)
+            url=url+"&"+extendParams;
+        else
+            url=url+"?"+extendParams;
+        return url;
+    }
+
+    //获取版本号
+    private String getAppVersionName(){
+        String retVal ="";
+        PackageManager packageManager = activity2.getPackageManager();
+        try {
+            retVal= packageManager.getPackageInfo(activity2.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return retVal;
+    }
 
     /**
      * 用户权限 申请 的回调方法
@@ -120,6 +140,7 @@ public class WebViewActivity extends CordovaActivity
                 } else {
                     Bundle b = getIntent().getExtras();
                     String url = b.getString("url");
+                    url=  getDefaultParams(url);
                     String title = b.getString("title");
                     Boolean isBackBtn=true;
                     Boolean shouldShowLoading = false;

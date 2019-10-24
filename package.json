@@ -1,0 +1,26 @@
+{
+  "name": "cordova-plugin-webviewActivity",
+  "version": "1.0.0",
+  "description": "utils.",
+  "cordova": {
+    "id": "cordova-plugin-webviewActivity",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NeoLSN/cordova-plugin-android-permission.git"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=5.0.0"
+    }
+  ],
+  "author": "zhangjianying",
+  "license": "BSD"
+}

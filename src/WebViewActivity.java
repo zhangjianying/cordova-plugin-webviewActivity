@@ -89,10 +89,14 @@ public class WebViewActivity extends CordovaActivity
                 if(shouldShowLoading){
                     showLoading();
                 }
-//                title = "我是标题我是标题我是标题我是标题我是标题我是标题";
-                //显示标题
                 initTitle(title, isBackBtn);
             }
+        }else{
+            loadUrl(url);
+            if(shouldShowLoading){
+                showLoading();
+            }
+            initTitle(title, isBackBtn);
         }
 
 

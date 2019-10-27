@@ -7,6 +7,8 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import org.apache.cordova.CordovaActivity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -69,7 +71,6 @@ public class WebViewActivity extends CordovaActivity
 
         url=  getDefaultParams(url);
         Log.d("WebViewActivity","url="+url);
-
 
         //动态申请权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -164,6 +165,17 @@ public class WebViewActivity extends CordovaActivity
         }
     }
 
+    public Object onMessage(String id, Object data) {
+        if ("onReceivedError".equals(id)) {
+            JSONObject d = (JSONObject) data;
+        } else if ("onPageFinished".equals(id)){
+            if(dialog!=null){
+                dialog.hide();
+            }
+
+        }
+        return null;
+    }
 
     public  boolean showLoading() {
         // Loading spinner
@@ -212,15 +224,6 @@ public class WebViewActivity extends CordovaActivity
 
         return true;
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (dialog!= null) {
-            dialog.dismiss();
-        }
-    }
-
     private void initTitle(String title, boolean isBack) {
         boolean isTitle = false;
 

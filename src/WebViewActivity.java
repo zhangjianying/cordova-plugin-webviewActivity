@@ -3,6 +3,7 @@ package com.zsoftware;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import org.apache.cordova.CordovaActivity;
@@ -31,8 +32,8 @@ import android.widget.Toast;
 
 public class WebViewActivity extends CordovaActivity
 {
-    static Dialog dialog;
-    static WebViewActivity activity2;
+     Dialog dialog;
+     WebViewActivity activity2;
 
     // 要申请的权限
     private String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CALL_PHONE,
@@ -164,7 +165,7 @@ public class WebViewActivity extends CordovaActivity
     }
 
 
-    public static boolean showLoading() {
+    public  boolean showLoading() {
         // Loading spinner
         activity2.runOnUiThread(new Runnable() {
             @Override
@@ -211,6 +212,15 @@ public class WebViewActivity extends CordovaActivity
 
         return true;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (dialog!= null) {
+            dialog.dismiss();
+        }
+    }
+
     private void initTitle(String title, boolean isBack) {
         boolean isTitle = false;
 
@@ -220,7 +230,16 @@ public class WebViewActivity extends CordovaActivity
         //标题整体布局
         RelativeLayout titleBoxView = new RelativeLayout(this);
         RelativeLayout.LayoutParams boxLp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, h);
-        titleBoxView.setBackgroundColor(Color.BLACK);
+
+
+        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
+                android.R.attr.colorBackground,
+                android.R.attr.textColorPrimary,
+        });
+        int backgroundColor = array.getColor(0, 0xFF00FF);
+        int textColor = array.getColor(1, 0xFF00FF);
+
+        titleBoxView.setBackgroundColor(backgroundColor);
 
         //添加标题
         if (!(title == null || title.trim().equals(""))) {
@@ -246,8 +265,15 @@ public class WebViewActivity extends CordovaActivity
     private void setBackBtn(RelativeLayout box) {
         TextView text = new TextView(this);
         text.setText("×");
-        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 33);
-        text.setTextColor(Color.WHITE);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 36);
+        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
+                android.R.attr.colorBackground,
+                android.R.attr.textColorPrimary,
+        });
+        int backgroundColor = array.getColor(0, 0xFF00FF);
+        int textColor = array.getColor(1, 0xFF00FF);
+
+        text.setTextColor(textColor);
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.CENTER_VERTICAL);
         lp.setMargins(dip2px(10), 0, 0, 0);
@@ -266,15 +292,23 @@ public class WebViewActivity extends CordovaActivity
         if (str == null || str.trim().equals("")) {
             return;
         }
-        int margin = 60;
+        int margin = 40;
         TextView text = new TextView(this);
         text.setText(str);
-        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        text.setTextColor(Color.WHITE);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+
+
+        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
+                android.R.attr.colorBackground,
+                android.R.attr.textColorPrimary,
+        });
+        int backgroundColor = array.getColor(0, 0xFF00FF);
+        int textColor = array.getColor(1, 0xFF00FF);
+        text.setTextColor(textColor);
         //text.setBackgroundColor(Color.GREEN);
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.addRule(RelativeLayout.CENTER_IN_PARENT);
-        lp.setMargins(dip2px(margin), dip2px(2), dip2px(margin), 0);
+//        lp.addRule(RelativeLayout.CENTER_VERTICAL);
+        lp.setMargins(dip2px(margin), dip2px(14                                       ), dip2px(margin), 0);
         text.setLayoutParams(lp);
         text.setMaxLines(1);
         text.setEllipsize(TextUtils.TruncateAt.END);

@@ -50,6 +50,7 @@
 
       <source-file src="src/WebViewActivity.java" target-dir="src/com/zsoftware"/>
       <source-file src="src/WebViewPlugin.java" target-dir="src/com/zsoftware"/>
+      <framework src="com.android.support:appcompat-v7:27+" />
   </platform>
 
 

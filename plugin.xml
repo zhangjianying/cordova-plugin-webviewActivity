@@ -14,12 +14,12 @@
     <engine name="cordova" version=">=5.0.0"/>
   </engines>
 
+  <js-module src="www/webviewActivity.js" name="webView">
+        <clobbers target="webView" />
+  </js-module>
+
   <!-- android -->
   <platform name="android">
-      <js-module src="www/webviewActivity.js" name="webView">
-        <clobbers target="webView" />
-      </js-module>
-
 
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -48,13 +48,24 @@
         </feature>
       </config-file>
 
-      <source-file src="src/WebViewActivity.java" target-dir="src/com/zsoftware"/>
-      <source-file src="src/WebViewPlugin.java" target-dir="src/com/zsoftware"/>
+      <source-file src="src/android/WebViewActivity.java" target-dir="src/com/zsoftware"/>
+      <source-file src="src/android/WebViewPlugin.java" target-dir="src/com/zsoftware"/>
       <framework src="com.android.support:appcompat-v7:27+" />
   </platform>
 
+  <!-- ios -->
+    <platform name="ios">
+         <config-file target="config.xml" parent="/*">
+             <feature name="webView">
+                 <param name="ios-package" value="CDVWebView" />
+             </feature>
+         </config-file>
 
-
+         <header-file src="src/ios/CDVWebView.h" />
+         <source-file src="src/ios/CDVWebView.m" />
+         <header-file src="src/ios/WebViewViewController.h" />
+         <source-file src="src/ios/WebViewViewController.m" />
+    </platform>
 
 
 </plugin>

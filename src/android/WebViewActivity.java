@@ -7,8 +7,6 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import org.apache.cordova.CordovaActivity;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -31,20 +29,36 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.json.JSONObject;
 
-public class WebViewActivity extends CordovaActivity
-{
-     Dialog dialog;
-     WebViewActivity activity2;
+import android.os.Bundle;
+import org.apache.cordova.*;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.view.View;
+import android.graphics.PixelFormat;
+
+public class WebViewActivity extends CordovaActivity {
+    Dialog dialog;
+    WebViewActivity activity2;
 
     // 要申请的权限
-    private String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CALL_PHONE,
-            Manifest.permission.CAMERA,Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,Manifest.permission.READ_PHONE_STATE,Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-
+    private String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CALL_PHONE,
+            Manifest.permission.CAMERA, Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS, Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.RECORD_AUDIO, Manifest.permission.ACCESS_FINE_LOCATION,
 
     };
+
+    @Override
+    public Resources getResources() {
+        Resources res = super.getResources();
+        Configuration config = new Configuration();
+        config.setToDefaults();
+        res.updateConfiguration(config, res.getDisplayMetrics());
+        return res;
+    }
+
     /**
      * 开始提交请求权限
      */
@@ -53,75 +67,84 @@ public class WebViewActivity extends CordovaActivity
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // getWindow().setFormat(PixelFormat.TRANSLUCENT);
+        // try {
+        // if (Integer.parseInt(android.os.Build.VERSION.SDK) >= 11) {
+        // getWindow()
+        // .setFlags(
+        // android.view.WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+        // android.view.WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        // }
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
+
         activity2 = this;
         Bundle b = getIntent().getExtras();
         String url = b.getString("url");
         String title = b.getString("title");
-        Boolean isBackBtn=true;
+        Boolean isBackBtn = true;
         Boolean shouldShowLoading = false;
-        try{
+        try {
             shouldShowLoading = b.getBoolean("shouldShowLoading");
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        url=  getDefaultParams(url);
-        Log.d("WebViewActivity","url="+url);
+        url = getDefaultParams(url);
+        Log.d("WebViewActivity", "url=" + url);
 
-        //动态申请权限
+        // 动态申请权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // 检查该权限是否已经获取
             int i = ContextCompat.checkSelfPermission(getApplicationContext(), permissions[0]);
             int l = ContextCompat.checkSelfPermission(getApplicationContext(), permissions[1]);
             int m = ContextCompat.checkSelfPermission(getApplicationContext(), permissions[2]);
             int n = ContextCompat.checkSelfPermission(getApplicationContext(), permissions[3]);
-            // 权限是否已经 授权 GRANTED---授权  DINIED---拒绝
-            if (i != PackageManager.PERMISSION_GRANTED || l != PackageManager.PERMISSION_GRANTED || m != PackageManager.PERMISSION_GRANTED ||
-                    n != PackageManager.PERMISSION_GRANTED) {
+            // 权限是否已经 授权 GRANTED---授权 DINIED---拒绝
+            if (i != PackageManager.PERMISSION_GRANTED || l != PackageManager.PERMISSION_GRANTED
+                    || m != PackageManager.PERMISSION_GRANTED || n != PackageManager.PERMISSION_GRANTED) {
                 startRequestPermission();
-            }else{
+            } else {
                 loadUrl(url);
-                if(shouldShowLoading){
+                if (shouldShowLoading) {
                     showLoading();
                 }
-                initTitle(title, isBackBtn);
+                // initTitle(title, isBackBtn);
             }
-        }else{// 6.0以下处理流程
+        } else {// 6.0以下处理流程
             loadUrl(url);
-            if(shouldShowLoading){
+            if (shouldShowLoading) {
                 showLoading();
             }
-            initTitle(title, isBackBtn);
+            // initTitle(title, isBackBtn);
         }
-
 
     }
 
-
-    private String getDefaultParams(String url){
+    private String getDefaultParams(String url) {
         ArrayList<String> params = new ArrayList<String>();
-        params.add("v="+getAppVersionName());
+        params.add("v=" + getAppVersionName());
         params.add("p=android");
-        params.add("rt="+new Date().getTime());
+        params.add("rt=" + new Date().getTime());
 
         String extendParams = TextUtils.join("&", params);
-        if(url.indexOf("?")>-1)
-            url=url+"&"+extendParams;
+        if (url.indexOf("?") > -1)
+            url = url + "&" + extendParams;
         else
-            url=url+"?"+extendParams;
+            url = url + "?" + extendParams;
         return url;
     }
 
-    //获取版本号
-    private String getAppVersionName(){
-        String retVal ="";
+    // 获取版本号
+    private String getAppVersionName() {
+        String retVal = "";
         PackageManager packageManager = activity2.getPackageManager();
         try {
-            retVal= packageManager.getPackageInfo(activity2.getPackageName(), 0).versionName;
+            retVal = packageManager.getPackageInfo(activity2.getPackageName(), 0).versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -130,36 +153,37 @@ public class WebViewActivity extends CordovaActivity
 
     /**
      * 用户权限 申请 的回调方法
+     * 
      * @param requestCode
      * @param permissions
      * @param grantResults
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 3721) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    //如果没有获取权限，那么可以提示用户去设置界面--->应用权限开启权限
+                    // 如果没有获取权限，那么可以提示用户去设置界面--->应用权限开启权限
                     Toast.makeText(activity2, "由于您拒绝授权应用权限,无法使用相关功能", Toast.LENGTH_SHORT).show();
                 } else {
                     Bundle b = getIntent().getExtras();
                     String url = b.getString("url");
-                    url=  getDefaultParams(url);
+                    url = getDefaultParams(url);
                     String title = b.getString("title");
-                    Boolean isBackBtn=true;
+                    Boolean isBackBtn = true;
                     Boolean shouldShowLoading = false;
-                    try{
+                    try {
                         shouldShowLoading = b.getBoolean("shouldShowLoading");
-                    }
-                    catch(Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     loadUrl(url);
-                    if(shouldShowLoading){
+                    if (shouldShowLoading) {
                         showLoading();
                     }
-                    initTitle(title, isBackBtn);
+                    // initTitle(title, isBackBtn);
                 }
             }
         }
@@ -168,8 +192,8 @@ public class WebViewActivity extends CordovaActivity
     public Object onMessage(String id, Object data) {
         if ("onReceivedError".equals(id)) {
             JSONObject d = (JSONObject) data;
-        } else if ("onPageFinished".equals(id)){
-            if(dialog!=null){
+        } else if ("onPageFinished".equals(id)) {
+            if (dialog != null) {
                 dialog.hide();
             }
 
@@ -177,19 +201,20 @@ public class WebViewActivity extends CordovaActivity
         return null;
     }
 
-    public  boolean showLoading() {
+    public boolean showLoading() {
         // Loading spinner
         activity2.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dialog = new Dialog(activity2,android.R.style.Theme_Translucent_NoTitleBar);
-                ProgressBar progressBar = new ProgressBar(activity2,null,android.R.attr.progressBarStyle);
+                dialog = new Dialog(activity2, android.R.style.Theme_Translucent_NoTitleBar);
+                ProgressBar progressBar = new ProgressBar(activity2, null, android.R.attr.progressBarStyle);
 
                 LinearLayout linearLayout = new LinearLayout(activity2);
                 linearLayout.setOrientation(LinearLayout.VERTICAL);
                 RelativeLayout layoutPrincipal = new RelativeLayout(activity2);
                 layoutPrincipal.setBackgroundColor(Color.parseColor("#00b5b2b2"));
-                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.addRule(RelativeLayout.CENTER_IN_PARENT);
                 linearLayout.addView(progressBar);
                 linearLayout.setLayoutParams(params);
@@ -204,15 +229,15 @@ public class WebViewActivity extends CordovaActivity
                 dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
                     @Override
                     public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
-                        if(keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK){
+                        if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
                             dialog.hide();
-                    }
+                        }
                         return false;
                     }
                 });
 
                 dialog.show();
-                new Handler().postDelayed(new Runnable(){
+                new Handler().postDelayed(new Runnable() {
 
                     public void run() {
                         dialog.hide();
@@ -224,60 +249,63 @@ public class WebViewActivity extends CordovaActivity
 
         return true;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
     private void initTitle(String title, boolean isBack) {
         boolean isTitle = false;
 
-        //标题高度
+        // 标题高度
         int h = dip2px(50);
 
-        //标题整体布局
+        // 标题整体布局
         RelativeLayout titleBoxView = new RelativeLayout(this);
         RelativeLayout.LayoutParams boxLp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, h);
 
-
-        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
-                android.R.attr.colorBackground,
-                android.R.attr.textColorPrimary,
-        });
+        TypedArray array = getTheme()
+                .obtainStyledAttributes(new int[] { android.R.attr.colorBackground, android.R.attr.textColorPrimary, });
         int backgroundColor = array.getColor(0, 0xFF00FF);
         int textColor = array.getColor(1, 0xFF00FF);
 
         titleBoxView.setBackgroundColor(backgroundColor);
 
-        //添加标题
+        // 添加标题
         if (!(title == null || title.trim().equals(""))) {
             setMyTitle(title, titleBoxView);
             isTitle = true;
         }
-        //添加返回
+        // 添加返回
         if (isBack) {
             setBackBtn(titleBoxView);
             isTitle = true;
         }
-        //有标题或返回,才添加标题
+        // 有标题或返回,才添加标题
         if (isTitle) {
-            setAppViewMargins(h);//整体布局下移标题高度
-            addContentView(titleBoxView, boxLp);//添加标题布局进入页面
+            setAppViewMargins(h);// 整体布局下移标题高度
+            addContentView(titleBoxView, boxLp);// 添加标题布局进入页面
         }
-
 
     }
 
-
-    //添加关闭按钮
+    // 添加关闭按钮
     private void setBackBtn(RelativeLayout box) {
         TextView text = new TextView(this);
         text.setText("×");
         text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 36);
-        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
-                android.R.attr.colorBackground,
-                android.R.attr.textColorPrimary,
-        });
+        TypedArray array = getTheme()
+                .obtainStyledAttributes(new int[] { android.R.attr.colorBackground, android.R.attr.textColorPrimary, });
         int backgroundColor = array.getColor(0, 0xFF00FF);
         int textColor = array.getColor(1, 0xFF00FF);
 
         text.setTextColor(textColor);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.CENTER_VERTICAL);
         lp.setMargins(dip2px(10), 0, 0, 0);
         text.setLayoutParams(lp);
@@ -290,7 +318,7 @@ public class WebViewActivity extends CordovaActivity
         box.addView(text);
     }
 
-    //设置标题
+    // 设置标题
     private void setMyTitle(String str, RelativeLayout box) {
         if (str == null || str.trim().equals("")) {
             return;
@@ -300,25 +328,23 @@ public class WebViewActivity extends CordovaActivity
         text.setText(str);
         text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
-
-        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
-                android.R.attr.colorBackground,
-                android.R.attr.textColorPrimary,
-        });
+        TypedArray array = getTheme()
+                .obtainStyledAttributes(new int[] { android.R.attr.colorBackground, android.R.attr.textColorPrimary, });
         int backgroundColor = array.getColor(0, 0xFF00FF);
         int textColor = array.getColor(1, 0xFF00FF);
         text.setTextColor(textColor);
-        //text.setBackgroundColor(Color.GREEN);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        lp.addRule(RelativeLayout.CENTER_VERTICAL);
-        lp.setMargins(dip2px(margin), dip2px(14                                       ), dip2px(margin), 0);
+        // text.setBackgroundColor(Color.GREEN);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        // lp.addRule(RelativeLayout.CENTER_VERTICAL);
+        lp.setMargins(dip2px(margin), dip2px(14), dip2px(margin), 0);
         text.setLayoutParams(lp);
         text.setMaxLines(1);
         text.setEllipsize(TextUtils.TruncateAt.END);
         box.addView(text);
     }
 
-    //设置页面的margins
+    // 设置页面的margins
     private void setAppViewMargins(int h) {
         View view = appView.getView();
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) view.getLayoutParams();
@@ -326,7 +352,7 @@ public class WebViewActivity extends CordovaActivity
         view.setLayoutParams(lp);
     }
 
-    //ps转px
+    // ps转px
     private int dip2px(float dipValue) {
         final float scale = this.getResources().getDisplayMetrics().density;
         return (int) (dipValue * scale + 0.5f);

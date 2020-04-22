@@ -42,8 +42,9 @@ import android.os.Build;
 import static android.content.Context.POWER_SERVICE;
 
 public class WebViewPlugin extends CordovaPlugin {
-   private static final String LOG_TAG = "WebViewPlugin";
-   private static String SHOW_ACTION = "show";
+    private static final String LOG_TAG = "WebViewPlugin";
+    private static String SHOW_ACTION = "show";
+    private static String CLOSE_ACTION = "close";
 
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
@@ -55,30 +56,34 @@ public class WebViewPlugin extends CordovaPlugin {
     public WebViewPlugin() {
     }
 
-
     /**
      * @param action          The action to execute.
      * @param args            JSONArray of arguments for the plugin.
-     * @param callbackContext The callback context used when calling back into JavaScript.
+     * @param callbackContext The callback context used when calling back into
+     *                        JavaScript.
      * @return True when the action was valid, false otherwise.
      */
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        if (this.cordova.getActivity().isFinishing()) return true;
+        if (this.cordova.getActivity().isFinishing())
+            return true;
 
-        if (action.equalsIgnoreCase(SHOW_ACTION)  && args.length() > 0) { //跳转界面
+        if (action.equalsIgnoreCase(CLOSE_ACTION)) {// 关闭当前界面
+            this.cordova.getActivity().finish();
+            return true;
+        }
+
+        if (action.equalsIgnoreCase(SHOW_ACTION) && args.length() > 0) { // 跳转界面
             final String url = args.getString(0);
             Boolean shouldShowLoading = false;
-            try{
+            try {
                 shouldShowLoading = args.getBoolean(1);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            catch(Exception e){
-                   e.printStackTrace();
-            }
-            String title ="";
-            try{
+            String title = "";
+            try {
                 title = args.getString(2);
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             final String paramTitle = title;
@@ -86,8 +91,8 @@ public class WebViewPlugin extends CordovaPlugin {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(!"".equals(url)) {
-                        showWebViewActivity(url,paramShowLoading,paramTitle);
+                    if (!"".equals(url)) {
+                        showWebViewActivity(url, paramShowLoading, paramTitle);
                         callbackContext.success();
                     }
 
@@ -100,10 +105,10 @@ public class WebViewPlugin extends CordovaPlugin {
         return true;
     }
 
-     /**
+    /**
      * 跳转到新页面窗体
      */
-    private void showWebViewActivity( String url, Boolean shouldShowLoading,String title) {
+    private void showWebViewActivity(String url, Boolean shouldShowLoading, String title) {
         final Context context = this.cordova.getActivity();
         Intent intent = new Intent(context, WebViewActivity.class);
         intent.putExtra("url", url);
@@ -119,5 +124,7 @@ public class WebViewPlugin extends CordovaPlugin {
     }
 
     @Override
-    public Boolean shouldAllowNavigation(String url) {return true;}
+    public Boolean shouldAllowNavigation(String url) {
+        return true;
+    }
 }

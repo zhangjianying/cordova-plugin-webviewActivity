@@ -5,12 +5,13 @@
   "cordova": {
     "id": "cordova-plugin-webviewActivity",
     "platforms": [
-      "android"
+      "android",
+      "ios"
     ]
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NeoLSN/cordova-plugin-android-permission.git"
+    "url": "git+https://github.com/zhangjianying/cordova-plugin-webviewActivity.git"
   },
   "keywords": [
     "ecosystem:cordova"
